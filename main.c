@@ -6,23 +6,46 @@
 /*   By: mzridi <mzridi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/13 21:28:42 by mzridi            #+#    #+#             */
-/*   Updated: 2022/09/17 00:52:33 by mzridi           ###   ########.fr       */
+/*   Updated: 2022/09/24 21:15:52 by mzridi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	lunch_threads(t_philo **philos, pthread_t *threads)
+void	exit_philo(t_philo **philos)
 {
-	int			i;
+	pthread_mutex_destroy((*philos)[0].params->forks);
+}
+
+void	lunch_threads(t_philo **philos, pthread_t *threads)
+{
+	int	i;
+	int	n;
 
 	i = -1;
+	n = (*philos)[0].params->n_philo;
 	while (++i < (*philos)[0].params->n_philo)
 		pthread_create(threads + i, NULL, &routine, philos[i]);
-	i = 0;
-	while (i < (*philos)[0].params->n_philo)
-		pthread_join(threads[i], NULL);
-	return (1);
+	while (!(*philos)[0].params->should_stop)
+	{
+		// printf("%d\n",i%n);
+		// if ((*philos)[i%n].params->n_philo == (*philos)[i%n].params->i_must_eat)
+		// {	
+		// 	printf("---------\n");
+		// 	pthread_mutex_lock(&((*philos)[i%n].params->print));
+		// 	(*philos)[0].params->should_stop = 1;
+		// 	break;
+		// }
+		if (get_time((*philos)[i%n].params) - (*philos)[i%n].last_eat >= (*philos)[i%n].params->t_die)
+		{
+			printf("---------\n");
+			pthread_mutex_lock(&((*philos)[i%n].params->print));
+			printf("%lld %d died\n", get_time((*philos)[i%n].params), (*philos)[i%n].n);
+			(*philos)[i%n].params->should_stop = 1;
+			break ;
+		}
+		// i++;
+	}
 }
 
 int	main(int argc, char **argv)
@@ -41,4 +64,6 @@ int	main(int argc, char **argv)
 		return (free(params), 1);
 	philos = init_philos(philos, params);
 	lunch_threads(philos, treads);
+	printf("ok\n");
+	exit_philo(philos);
 }

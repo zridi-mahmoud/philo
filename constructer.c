@@ -6,7 +6,7 @@
 /*   By: mzridi <mzridi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/13 20:57:54 by mzridi            #+#    #+#             */
-/*   Updated: 2022/09/17 00:34:19 by mzridi           ###   ########.fr       */
+/*   Updated: 2022/09/24 18:30:26 by mzridi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,22 +54,25 @@ t_params	*parse_input(char **argv, int argc)
 	if (argc == 6)
 	{
 		tmp = ft_atoi(argv[5]);
-		if (tmp > (long)(1 << 31) - 1)
+		if (tmp > (1L << 31) - 1)
 			return (free(params), NULL);
-		params->n_philo = tmp;
+		params->n_must_eat = tmp;
 	}
 	params->forks = malloc(params->n_philo * sizeof(pthread_mutex_t));
 	if (!params->forks)
 		return (free(params), NULL);
 	params->start = 0;
 	params->start_time = time_in_mill;
+	params->should_stop = 0;
 	return (params);
 }
 
 void	free_philos(int n, t_philo **philos, t_params *params)
 {
 	while (n < params->n_philo)
+	{
 		free(philos[n++]);
+	}
 	free(philos);
 	free(params);
 }
@@ -77,21 +80,25 @@ void	free_philos(int n, t_philo **philos, t_params *params)
 t_philo	**init_philos(t_philo **philos, t_params *params)
 {
 	int	n;
+	int	mtx;
 
 	n = params->n_philo;
+	mtx = 0;
 	philos = malloc(n * sizeof(t_philo *));
 	if (!philos)
 		return (free(params), NULL);
 	while (n--)
 	{
 		philos[n] = malloc(sizeof(t_philo));
+		mtx = pthread_mutex_init(&params->forks[n], NULL);
 		if (!philos[n])
 			return (free_philos(n + 1, philos, params), NULL);
 		philos[n]->n = n + 1;
 		philos[n]->left = &params->forks[n];
-		philos[n]->right = &params->forks[(n + 1) % params->n_must_eat];
+		philos[n]->right = &params->forks[(n + 1) % params->n_philo];
 		philos[n]->params = params;
 		philos[n]->last_eat = get_time(params);
+		philos[n]->eaten = 0;
 	}
 	return (philos);
 }
