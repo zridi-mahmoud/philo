@@ -6,7 +6,7 @@
 /*   By: mzridi <mzridi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/13 21:28:42 by mzridi            #+#    #+#             */
-/*   Updated: 2022/09/24 21:15:52 by mzridi           ###   ########.fr       */
+/*   Updated: 2022/09/25 13:49:15 by mzridi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,23 +28,21 @@ void	lunch_threads(t_philo **philos, pthread_t *threads)
 		pthread_create(threads + i, NULL, &routine, philos[i]);
 	while (!(*philos)[0].params->should_stop)
 	{
-		// printf("%d\n",i%n);
-		// if ((*philos)[i%n].params->n_philo == (*philos)[i%n].params->i_must_eat)
-		// {	
-		// 	printf("---------\n");
-		// 	pthread_mutex_lock(&((*philos)[i%n].params->print));
-		// 	(*philos)[0].params->should_stop = 1;
-		// 	break;
-		// }
-		if (get_time((*philos)[i%n].params) - (*philos)[i%n].last_eat >= (*philos)[i%n].params->t_die)
+		// printf("%d\n",philos[1]->params->n_philo);
+		if (philos[i%n]->params->check_n_eat && philos[i%n]->params->n_philo == philos[i%n]->params->i_must_eat)
+		{	
+			pthread_mutex_lock(&(philos[i%n]->params->print));
+			(*philos)[0].params->should_stop = 1;
+			break;
+		}
+		if (get_time(philos[i%n]->params) - philos[i%n]->last_eat >= philos[i%n]->params->t_die)
 		{
-			printf("---------\n");
-			pthread_mutex_lock(&((*philos)[i%n].params->print));
-			printf("%lld %d died\n", get_time((*philos)[i%n].params), (*philos)[i%n].n);
-			(*philos)[i%n].params->should_stop = 1;
+			pthread_mutex_lock(&(philos[i%n]->params->print));
+			printf("%lld %d died\n", get_time(philos[i%n]->params), philos[i%n]->n);
+			philos[i%n]->params->should_stop = 1;
 			break ;
 		}
-		// i++;
+		i++;
 	}
 }
 
@@ -64,6 +62,5 @@ int	main(int argc, char **argv)
 		return (free(params), 1);
 	philos = init_philos(philos, params);
 	lunch_threads(philos, treads);
-	printf("ok\n");
 	exit_philo(philos);
 }
