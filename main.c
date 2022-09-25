@@ -6,7 +6,7 @@
 /*   By: mzridi <mzridi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/13 21:28:42 by mzridi            #+#    #+#             */
-/*   Updated: 2022/09/25 13:49:15 by mzridi           ###   ########.fr       */
+/*   Updated: 2022/09/25 22:23:56 by mzridi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 void	exit_philo(t_philo **philos)
 {
 	pthread_mutex_destroy((*philos)[0].params->forks);
+	pthread_mutex_destroy(&(*philos)[0].params->print);
+	free((*philos)[0].params->forks);
+	free_philos(0, philos, (*philos)[0].params);
 }
 
 void	lunch_threads(t_philo **philos, pthread_t *threads)
@@ -26,23 +29,23 @@ void	lunch_threads(t_philo **philos, pthread_t *threads)
 	n = (*philos)[0].params->n_philo;
 	while (++i < (*philos)[0].params->n_philo)
 		pthread_create(threads + i, NULL, &routine, philos[i]);
-	while (!(*philos)[0].params->should_stop)
+	while (1)
 	{
-		// printf("%d\n",philos[1]->params->n_philo);
-		if (philos[i%n]->params->check_n_eat && philos[i%n]->params->n_philo == philos[i%n]->params->i_must_eat)
+		if (philos[i % n]->params->check_n_eat && \
+		philos[i % n]->params->n_philo == philos[i % n]->params->i_must_eat)
 		{	
-			pthread_mutex_lock(&(philos[i%n]->params->print));
-			(*philos)[0].params->should_stop = 1;
-			break;
-		}
-		if (get_time(philos[i%n]->params) - philos[i%n]->last_eat >= philos[i%n]->params->t_die)
-		{
-			pthread_mutex_lock(&(philos[i%n]->params->print));
-			printf("%lld %d died\n", get_time(philos[i%n]->params), philos[i%n]->n);
-			philos[i%n]->params->should_stop = 1;
+			pthread_mutex_lock(&(philos[i % n]->params->print));
 			break ;
 		}
-		i++;
+		if (get_time(philos[i % n]->params) - philos[i % n]->last_eat >= \
+			philos[i % n]->params->t_die)
+		{
+			pthread_mutex_lock(&(philos[i % n]->params->print));
+			printf("%lld %d died\n", get_time(philos[i % n]->params), \
+				philos[i % n]->n);
+			break ;
+		}
+		i = (i + 1) % n;
 	}
 }
 
@@ -61,6 +64,11 @@ int	main(int argc, char **argv)
 	if (!treads)
 		return (free(params), 1);
 	philos = init_philos(philos, params);
+	params->keep_going = 1;
+	if (params->check_n_eat && !params->n_must_eat)
+		return (exit_philo(philos), 0);
 	lunch_threads(philos, treads);
+	free(treads);
+	params->keep_going = 0;
 	exit_philo(philos);
 }

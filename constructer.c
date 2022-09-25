@@ -6,7 +6,7 @@
 /*   By: mzridi <mzridi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/13 20:57:54 by mzridi            #+#    #+#             */
-/*   Updated: 2022/09/25 14:03:51 by mzridi           ###   ########.fr       */
+/*   Updated: 2022/09/25 21:41:35 by mzridi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,21 +19,25 @@ int	get_params(t_params *params, char **argv, int argc)
 	if (!(argc == 5 || argc == 6))
 		return (0);
 	tmp = ft_atoi(argv[1]);
-	if (tmp > (1L << 31) - 1)
+	if (tmp > (1L << 31) - 1 || tmp <= 0)
 		return (0);
 	params->n_philo = tmp;
 		tmp = ft_atoi(argv[2]);
-	if (tmp > (1L << 31) - 1)
+	if (tmp > (1L << 31) - 1 || tmp < 0)
 		return (0);
 	params->t_die = tmp;
 	tmp = ft_atoi(argv[3]);
-	if (tmp > (1L << 31) - 1)
+	if (tmp > (1L << 31) - 1 || tmp < 0)
 		return (0);
 	params->t_eat = tmp;
 	tmp = ft_atoi(argv[4]);
-	if (tmp > (1L << 31) - 1)
+	if (tmp > (1L << 31) - 1 || tmp < 0)
 		return (0);
 	params->t_sleap = tmp;
+	params->start = 0;
+	params->forks = malloc(params->n_philo * sizeof(pthread_mutex_t));
+	if (!params->forks)
+		return (0);
 	return (1);
 }
 
@@ -55,19 +59,14 @@ t_params	*parse_input(char **argv, int argc)
 	if (argc == 6)
 	{
 		tmp = ft_atoi(argv[5]);
-		if (tmp > (1L << 31) - 1)
+		if (tmp > (1L << 31) - 1 || tmp < 0)
 			return (free(params), NULL);
 		params->n_must_eat = tmp;
 		params->check_n_eat = 1;
 	}
-	params->forks = malloc(params->n_philo * sizeof(pthread_mutex_t));
-	if (!params->forks)
-		return (free(params), NULL);
-	params->start = 0;
 	params->start_time = time_in_mill;
-	params->should_stop = 0;
 	if (pthread_mutex_init(&params->print, NULL))
-		return(free(params), NULL);
+		return (free(params), NULL);
 	return (params);
 }
 

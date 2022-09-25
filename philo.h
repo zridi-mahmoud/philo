@@ -6,7 +6,7 @@
 /*   By: mzridi <mzridi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/13 20:59:01 by mzridi            #+#    #+#             */
-/*   Updated: 2022/09/25 13:47:31 by mzridi           ###   ########.fr       */
+/*   Updated: 2022/09/25 21:34:14 by mzridi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,8 @@ typedef struct s_globl_params {
 	int				start;
 	long long		start_time;
 	int				i_must_eat;
-	int				should_stop;
 	int				check_n_eat;
+	int				keep_going;
 }	t_params;
 
 typedef struct s_philo {
