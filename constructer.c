@@ -6,7 +6,7 @@
 /*   By: mzridi <mzridi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/13 20:57:54 by mzridi            #+#    #+#             */
-/*   Updated: 2022/09/25 21:41:35 by mzridi           ###   ########.fr       */
+/*   Updated: 2022/09/25 22:39:28 by mzridi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,9 +51,9 @@ t_params	*parse_input(char **argv, int argc)
 	gettimeofday(&tv, NULL);
 	time_in_mill = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000 ;
 	params = (t_params *)malloc(sizeof(t_params));
-	params->check_n_eat = 0;
 	if (!params)
 		return (NULL);
+	params->check_n_eat = 0;
 	if (!get_params(params, argv, argc))
 		return (free(params), NULL);
 	if (argc == 6)
